@@ -4,7 +4,7 @@
 
 using namespace std;
 
-bool canDistribute(const vector<int>& calories, int D, int maxDiff) {
+bool cD(const vector<int>& calories, int D, int maxDiff) {
     int days = 1;
     int start = 0;
     
@@ -36,7 +36,7 @@ int main() {
     while (left <= right) {
         int mid = left + (right - left) / 2;
         
-        if (canDistribute(calories, D, mid)) {
+        if (cD(calories, D, mid)) {
             answer = mid;
             right = mid - 1;
         } else {
