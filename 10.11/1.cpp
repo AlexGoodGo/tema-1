@@ -4,85 +4,63 @@
 
 using namespace std;
 
-
-struct PathInfo {
-    vector<pair<int, int>> path; 
-    int totalScore;              
-};
-
-vector<pair<int, int>> reconstructPath(const vector<vector<pair<int, int>>>& parent, int n, int m) {
-    vector<pair<int, int>> path;
-    int i = n - 1, j = m - 1;
-    while (i > 0 || j > 0) {
-        path.push_back({i, j});
-        int prev_i = parent[i][j].first;
-        int prev_j = parent[i][j].second;
-        i = prev_i;
-        j = prev_j;
-    }
-    path.push_back({0, 0}); 
-    reverse(path.begin(), path.end());
-    return path;
-}
-
-PathInfo findOptimalPath(const vector<vector<int>>& grid) {
-    int n = grid.size();
-    int m = grid[0].size();
-    vector<vector<int>> dp(n, vector<int>(m, 0));
-
-    vector<vector<pair<int, int>>> parent(n, vector<pair<int, int>>(m, {-1, -1}));
-    dp[0][0] = grid[0][0];
+int main() {
+    int N, M;
+    cin >> N >> M;
     
-
-    for (int j = 1; j < m; j++) {
-        dp[0][j] = dp[0][j-1] + grid[0][j];
-        parent[0][j] = {0, j-1};
+    vector<vector<int>> a(N, vector<int>(M));
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            cin >> a[i][j];
+        }
     }
     
+    vector<vector<int>> dp(N, vector<int>(M, 0));
+    vector<vector<int>> prev(N, vector<int>(M, -1));
+    
+    dp[0][0] = a[0][0];
 
-    for (int i = 1; i < n; i++) {
-        dp[i][0] = dp[i-1][0] + grid[i][0];
-        parent[i][0] = {i-1, 0};
+    for (int j = 1; j < M; j++) {
+        dp[0][j] = dp[0][j-1] + a[0][j];
+        prev[0][j] = 1;
     }
-
-    for (int i = 1; i < n; i++) {
-        for (int j = 1; j < m; j++) {
+    
+    for (int i = 1; i < N; i++) {
+        dp[i][0] = dp[i-1][0] + a[i][0];
+        prev[i][0] = 0; 
+    }
+    
+    for (int i = 1; i < N; i++) {
+        for (int j = 1; j < M; j++) {
             if (dp[i-1][j] > dp[i][j-1]) {
-                dp[i][j] = dp[i-1][j] + grid[i][j];
-                parent[i][j] = {i-1, j};
+                dp[i][j] = dp[i-1][j] + a[i][j];
+                prev[i][j] = 0; 
             } else {
-                dp[i][j] = dp[i][j-1] + grid[i][j];
-                parent[i][j] = {i, j-1};
+                dp[i][j] = dp[i][j-1] + a[i][j];
+                prev[i][j] = 1; 
             }
         }
     }
-
-    vector<pair<int, int>> path = reconstructPath(parent, n, m);
-    return {path, dp[n-1][m-1]};
-}
-
-int main() {
-    int n, m;
-    cout << "Введите количество строк (N): ";
-    cin >> n;
-    cout << "Введите количество столбцов (M): ";
-    cin >> m;
     
-    vector<vector<int>> grid(n, vector<int>(m));
+    vector<pair<int, int>> doroga;
+    int i = N - 1, j = M - 1;
     
-    cout << "Введите матрицу баллов (" << n << "x" << m << "):" << endl;
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-            cin >> grid[i][j];
+    while (i >= 0 && j >= 0) {
+        doroga.push_back({i, j});
+        
+        if (prev[i][j] == 0) {
+            i--;
+        } else if (prev[i][j] == 1) {
+            j--;
+        } else {
+            break;
         }
     }
     
-    PathInfo result = findOptimalPath(grid);
-    cout << "\nМаксимальная сумма баллов: " << result.totalScore << endl;
-    cout << "Оптимальный маршрут:" << endl;
+    reverse(doroga.begin(), doroga.end());
     
-    for (const auto& point : result.path) {
-        cout << point.first << " " << point.second << endl;
+    for (auto& p : doroga) {
+        cout << p.first << " " << p.second << endl;
     }
     
     return 0;
